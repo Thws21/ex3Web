@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Người dùng</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 16px;
+        color: #1f2937;
+        background: linear-gradient(135deg, #eef2f7 0%, #dbe4ee 100%);
+      }
+
+      .container {
+        width: min(1080px, 100%);
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 28px;
+        border: 1px solid #d1d9e6;
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 24px;
+        text-align: center;
+        color: #0f172a;
+        font-size: 32px;
+        font-weight: 800;
+      }
+
+      table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 20px 0;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+      }
+
+      th {
+        background: #1e3a8a;
+        color: #ffffff;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      tbody tr:hover {
+        background: #eaf1fb;
+      }
+
+      .col-index {
+        width: 72px;
+      }
+
+      .col-name {
+        width: 22%;
+      }
+
+      .col-email {
+        width: 28%;
+      }
+
+      .col-address {
+        width: 22%;
+      }
+
+      .col-age {
+        width: 12%;
+      }
+
+      .col-actions {
+        width: 220px;
+        text-align: center;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+      }
+
+      button {
+        min-width: 72px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin: 4px;
+        color: #ffffff;
+        background: #475569;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .btn-primary {
+        background: #1d4ed8;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: #1e40af;
+      }
+
+      .btn-danger {
+        background: #b91c1c;
+      }
+
+      .btn-danger:hover:not(:disabled) {
+        background: #991b1b;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(15, 23, 42, 0.45);
+        padding: 48px 16px;
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 0 auto;
+        padding: 26px;
+        border: 1px solid #dbe3ee;
+        border-radius: 18px;
+        width: min(560px, 100%);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+      }
+
+      .modal-content h2 {
+        margin: 0 0 18px;
+        color: #0f172a;
+      }
+
+      .close {
+        color: #475569;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: #0f172a;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      input,
+      select {
+        padding: 12px 14px;
+        margin: 6px 0 12px;
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #1f2937;
+        box-sizing: border-box;
+        outline: none;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        background: #ffffff;
+      }
+
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        color: #334155;
+        font-weight: 700;
+        flex-wrap: wrap;
+      }
+
+      .pagination select {
+        width: auto;
+        margin: 0;
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+
+      .error {
+        color: #b91c1c;
+        display: block;
+        margin-top: -8px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .api-error {
+        margin: 12px 0 16px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-weight: 700;
+        border: 1px solid #fecaca;
+      }
+
+      label {
+        color: #334155;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 16px 10px;
+        }
+
+        .container {
+          padding: 18px;
+          border-radius: 16px;
+        }
+
+        h1 {
+          font-size: 26px;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+        }
+
+        .pagination {
+          align-items: stretch;
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const API_URL = "http://localhost:3001/api/users";
+
+      function getFriendlyErrorMessage(error) {
+        const message = String(error?.message || "").toLowerCase();
+
+        if (
+          error instanceof TypeError ||
+          message.includes("failed to fetch") ||
+          message.includes("networkerror") ||
+          message.includes("load failed")
+        ) {
+          return "Không kết nối được cơ sở dữ liệu. Vui lòng kiểm tra backend.";
+        }
+
+        return error?.message || "Đã xảy ra lỗi không xác định.";
+      }
+
+      function App() {
+        const [users, setUsers] = React.useState([]);
+        const [page, setPage] = React.useState(1);
+        const [limit, setLimit] = React.useState(5);
+        const [search, setSearch] = React.useState("");
+        const [total, setTotal] = React.useState(0);
+        const [totalPages, setTotalPages] = React.useState(1);
+        const [showModal, setShowModal] = React.useState(false);
+        const [editingUser, setEditingUser] = React.useState(null);
+        const [apiError, setApiError] = React.useState("");
+
+        const fetchUsers = async () => {
+          try {
+            setApiError("");
+
+            const response = await fetch(
+              `${API_URL}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
+            );
+
+            if (!response.ok) {
+              const data = await response.json().catch(() => ({}));
+              throw new Error(data.error || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            setUsers(data.data || []);
+            setTotal(data.total || 0);
+            setTotalPages(data.totalPages || 1);
+          } catch (error) {
+            console.error("Error fetching users:", error);
+            setApiError(getFriendlyErrorMessage(error));
+          }
+        };
+
+        React.useEffect(() => {
+          fetchUsers();
+        }, [page, limit, search]);
+
+        const deleteUser = async (id) => {
+          if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
+            try {
+              setApiError("");
+
+              const response = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE",
+              });
+
+              if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error(data.error || `HTTP ${response.status}`);
+              }
+
+              fetchUsers();
+            } catch (error) {
+              console.error("Error deleting user:", error);
+              setApiError(getFriendlyErrorMessage(error));
+            }
+          }
+        };
+
+        return (
+          <div className="container">
+            <h1>Quản lý Người dùng</h1>
+
+            {apiError && <div className="api-error">{apiError}</div>}
+
+            <SearchBar value={search} onChange={(value) => setSearch(value)} />
+
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setEditingUser(null);
+                setShowModal(true);
+              }}
+            >
+              Thêm người dùng
+            </button>
+
+            <UserTable
+              users={users}
+              page={page}
+              limit={limit}
+              onEdit={(user) => {
+                setEditingUser(user);
+                setShowModal(true);
+              }}
+              onDelete={(id) => deleteUser(id)}
+            />
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              limit={limit}
+              onPageChange={(newPage) => setPage(newPage)}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+            />
+
+            {showModal && (
+              <UserModal
+                user={editingUser}
+                onClose={() => setShowModal(false)}
+                onSave={() => {
+                  setShowModal(false);
+                  fetchUsers();
+                }}
+              />
+            )}
+          </div>
+        );
+      }
+
+      function SearchBar({ value, onChange }) {
+        const [searchTerm, setSearchTerm] = React.useState(value);
+
+        React.useEffect(() => {
+          const handler = setTimeout(() => {
+            onChange(searchTerm);
+          }, 500);
+
+          return () => {
+            clearTimeout(handler);
+          };
+        }, [searchTerm, onChange]);
+
+        return (
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        );
+      }
+
+      function UserTable({ users, page, limit, onEdit, onDelete }) {
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th className="col-index">STT</th>
+                <th className="col-name">Tên</th>
+                <th className="col-age">Tuổi</th>
+                <th className="col-email">Email</th>
+                <th className="col-address">Địa chỉ</th>
+                <th className="col-actions">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="6">Không có dữ liệu</td>
+                </tr>
+              ) : (
+                users.map((user, index) => (
+                  <tr key={user._id}>
+                    <td className="col-index">{(page - 1) * limit + index + 1}</td>
+                    <td className="col-name">{user.name}</td>
+                    <td className="col-age">{user.age ?? "-"}</td>
+                    <td className="col-email">{user.email || "-"}</td>
+                    <td className="col-address">{user.address || "-"}</td>
+                    <td className="col-actions actions">
+                      <button onClick={() => onEdit(user)}>Sửa</button>
+                      <button className="btn-danger" onClick={() => onDelete(user._id)}>
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        );
+      }
+
+      function Pagination({
+        page,
+        totalPages,
+        limit,
+        onPageChange,
+        onLimitChange,
+      }) {
+        return (
+          <div className="pagination">
+            <button onClick={() => onPageChange(page - 1)} disabled={page === 1}>
+              Prev
+            </button>
+            <span>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => onPageChange(page + 1)}
+              disabled={page >= totalPages}
+            >
+              Next
+            </button>
+            <select
+              value={limit}
+              onChange={(e) => onLimitChange(Number(e.target.value))}
+            >
+              <option value={3}>3</option>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+            </select>
+          </div>
+        );
+      }
+
+      function UserModal({ user, onClose, onSave }) {
+        const [formErrors, setFormErrors] = React.useState({});
+
+        const validateUserData = (userData) => {
+          const errors = {};
+
+          if (userData.name.length < 2) {
+            errors.name = "Tên phải có ít nhất 2 ký tự";
+          }
+
+          if (!Number.isInteger(userData.age) || userData.age < 0) {
+            errors.age = "Tuổi phải là số nguyên lớn hơn hoặc bằng 0";
+          }
+
+          if (!userData.email.includes("@") || !userData.email.includes(".")) {
+            errors.email = "Email không hợp lệ";
+          }
+
+          return errors;
+        };
+
+        const saveUser = async (userData) => {
+          const url = user ? `${API_URL}/${user._id}` : API_URL;
+          const method = user ? "PUT" : "POST";
+
+          try {
+            const response = await fetch(url, {
+              method,
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(userData),
+            });
+
+            if (!response.ok) {
+              const data = await response.json().catch(() => ({}));
+              throw new Error(data.error || `HTTP ${response.status}`);
+            }
+          } catch (error) {
+            throw new Error(getFriendlyErrorMessage(error));
+          }
+        };
+
+        return (
+          <div className="modal" style={{ display: "block" }}>
+            <div className="modal-content">
+              <span className="close" onClick={onClose}>
+                &times;
+              </span>
+              <h2>{user ? "Sửa người dùng" : "Thêm người dùng"}</h2>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target);
+                  const userData = {
+                    name: formData.get("name").trim(),
+                    age: Number(formData.get("age")),
+                    email: formData.get("email").trim(),
+                    address: formData.get("address").trim(),
+                  };
+
+                  const errors = validateUserData(userData);
+                  if (Object.keys(errors).length > 0) {
+                    setFormErrors(errors);
+                    return;
+                  }
+
+                  try {
+                    await saveUser(userData);
+                    onSave();
+                  } catch (error) {
+                    setFormErrors({ submit: error.message });
+                  }
+                }}
+              >
+                <div>
+                  <label htmlFor="name">Tên</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    defaultValue={user?.name}
+                  />
+                  {formErrors.name && (
+                    <span className="error">{formErrors.name}</span>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="age">Tuổi</label>
+                  <input type="number" id="age" name="age" defaultValue={user?.age} />
+                  {formErrors.age && <span className="error">{formErrors.age}</span>}
+                </div>
+                <div>
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    defaultValue={user?.email}
+                  />
+                  {formErrors.email && (
+                    <span className="error">{formErrors.email}</span>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="address">Địa chỉ</label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    defaultValue={user?.address}
+                  />
+                  {formErrors.address && (
+                    <span className="error">{formErrors.address}</span>
+                  )}
+                </div>
+                {formErrors.submit && (
+                  <span className="error">{formErrors.submit}</span>
+                )}
+                <div className="form-actions">
+                  <button type="button" onClick={onClose}>
+                    Hủy
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Lưu
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
