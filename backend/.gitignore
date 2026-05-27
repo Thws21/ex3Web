@@ -1,0 +1,7 @@
+# File cau hinh rieng tren may cua ban, khong dua len GitHub
+.env
+.env.*
+!.env.example
+
+# Thu muc dependency co the cai lai bang npm install
+node_modules/
